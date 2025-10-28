@@ -86,7 +86,7 @@ export default function AppBarTabsMockup() {
     { key: 'prensado', label: 'Prensado Secado', icon: <FactCheckIcon /> },
     {
       key: 'esmaltacion',
-      label: 'Liena de Esmaltacion',
+      label: 'Linea de Esmaltacion',
       icon: <FactCheckIcon />,
     },
     {

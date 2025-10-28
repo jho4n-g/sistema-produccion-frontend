@@ -14,6 +14,7 @@ import {
   TableCell,
   TableHead,
   TableBody,
+  Chip,
   Divider,
   InputLabel,
   MenuItem,
@@ -25,12 +26,50 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import UploadIcon from '@mui/icons-material/Upload';
 import { useState } from 'react';
 
-const DEFECTOSSELECT = [
-  { code: 1, label: 'Aire goteado' },
-  { code: 2, label: 'Burbujas' },
-  { code: 3, label: 'Serigrafía mala' },
-  { code: 4, label: 'Grietas' },
-];
+const DatosTabla = () => ({
+  hora: '',
+  a1: '',
+  a2: '',
+  a3: '',
+  b1: '',
+  b2: '',
+  b3: '',
+  c1: '',
+  c2: '',
+  c3: '',
+  d1: '',
+  d2: '',
+  d3: '',
+  cajas_segunda: '',
+  defecto_segundaN1: '',
+  defecto_segundaN2: '',
+  defecto_segundaN3: '',
+  defecto_segundaN4: '',
+  defecto_segundaN5: '',
+  defecto_segundaN6: '',
+  defecto_segundaN7: '',
+  defecto_segundaN8: '',
+  defecto_segundaN9: '',
+  defecto_segundaN10: '',
+  cajas_tercera: '',
+  defecto_terceraN1: '',
+  defecto_terceraN2: '',
+  defecto_terceraN3: '',
+  defecto_terceraN4: '',
+  defecto_terceraN5: '',
+  defecto_terceraN6: '',
+  defecto_terceraN7: '',
+  cajas_casco: '',
+  defecto_cascoN1: '',
+  defecto_cascoN2: '',
+  defecto_cascoN3: '',
+  defecto_cascoN4: '',
+  espacio_min: '',
+});
+
+const NuevaObservacion = () => ({
+  observacion: '',
+});
 
 const formInitial = () => ({
   fecha: '',
@@ -40,14 +79,85 @@ const formInitial = () => ({
   turno: '',
   supervisor_turno: '',
   grupo: '',
-  obervacion: '',
+  observaciones: [],
+  segunda_defectoN1: '',
+  segunda_defectoN2: '',
+  segunda_defectoN3: '',
+  segunda_defectoN4: '',
+  segunda_defectoN5: '',
+  segunda_defectoN6: '',
+  segunda_defectoN7: '',
+  segunda_defectoN8: '',
+  segunda_defectoN9: '',
+  segunda_defectoN10: '',
+  tercera_defectoN1: '',
+  tercera_defectoN2: '',
+  tercera_defectoN3: '',
+  tercera_defectoN4: '',
+  tercera_defectoN5: '',
+  tercera_defectoN6: '',
+  tercera_defectoN7: '',
+  casco_defectoN1: '',
+  casco_defectoN2: '',
+  casco_defectoN3: '',
+  casco_defectoN4: '',
+  tabla_seleccion_embalaje: [],
 });
-
+const rows = 8;
 export default function ControlSeleccionEmbalaje() {
-  const [defecto, setDefecto] = useState('');
+  const [form, setForm] = useState(formInitial());
+  const [obsInput, setObsInput] = useState('');
 
-  const handleChangeDefecto = (event) => {
-    setDefecto(event.target.value);
+  const addObs = () => {
+    const v = obsInput.trim();
+    console.log('valor ', v);
+    if (!v) return;
+    setForm((f) => ({
+      ...f,
+      observaciones: [...(f.observaciones ?? []), { observacion: v }],
+    }));
+    setObsInput('');
+  };
+
+  const removeObs = (index) => {
+    setForm((f) => ({
+      ...f,
+      observaciones: f.observaciones.filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateBase = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+  };
+
+  const saveDatos = () => {
+    console.log(form);
+  };
+  const addRows = () => {
+    setForm((f) => {
+      if (f.tabla_seleccion_embalaje.length >= rows) return f;
+      return {
+        ...f,
+        tabla_seleccion_embalaje: [...f.tabla_seleccion_embalaje, DatosTabla()],
+      };
+    });
+  };
+  const removeRows = () => {
+    setForm((f) => {
+      if (f.tabla_seleccion_embalaje.length <= 0) return f;
+      return {
+        ...f,
+        tabla_seleccion_embalaje: f.tabla_seleccion_embalaje.slice(0, -1),
+      };
+    });
+  };
+  const setCargaTabla = (idx, field, value) => {
+    setForm((f) => {
+      const next = [...f.tabla_seleccion_embalaje];
+      next[idx] = { ...next[idx], [field]: value };
+      return { ...f, tabla_seleccion_embalaje: next };
+    });
   };
   return (
     <Box sx={{ bgcolor: '#f5f7fa', minHeight: '100vh' }}>
@@ -86,6 +196,8 @@ export default function ControlSeleccionEmbalaje() {
                   label="Fecha"
                   type="date"
                   name="fecha"
+                  value={form.fecha}
+                  onChange={updateBase}
                   InputLabelProps={{ shrink: true }}
                 />
               </Grid>
@@ -96,6 +208,8 @@ export default function ControlSeleccionEmbalaje() {
                   label="Producto"
                   type="label"
                   name="producto"
+                  value={form.producto}
+                  onChange={updateBase}
                 />
               </Grid>
               <Grid size={{ xs: 6, md: 3 }}>
@@ -105,6 +219,8 @@ export default function ControlSeleccionEmbalaje() {
                   label="Horno"
                   type="label"
                   name="horno"
+                  value={form.horno}
+                  onChange={updateBase}
                 />
               </Grid>
               <Grid size={{ xs: 6, md: 3 }}>
@@ -113,7 +229,9 @@ export default function ControlSeleccionEmbalaje() {
                   size="small"
                   label="Formato"
                   type="label"
-                  name="horno"
+                  name="formato"
+                  value={form.formato}
+                  onChange={updateBase}
                 />
               </Grid>
               <Grid size={{ xs: 6, md: 3 }}>
@@ -123,6 +241,8 @@ export default function ControlSeleccionEmbalaje() {
                   label="Turno"
                   type="label"
                   name="turno"
+                  value={form.turno}
+                  onChange={updateBase}
                 />
               </Grid>
               <Grid size={{ xs: 6, md: 3 }}>
@@ -132,6 +252,8 @@ export default function ControlSeleccionEmbalaje() {
                   label="Supervisor de Turno"
                   type="label"
                   name="supervisor_turno"
+                  value={form.supervisor_turno}
+                  onChange={updateBase}
                 />
               </Grid>
               <Grid size={{ xs: 6, md: 3 }}>
@@ -141,24 +263,46 @@ export default function ControlSeleccionEmbalaje() {
                   label="Grupo #"
                   type="label"
                   name="grupo"
+                  value={form.grupo}
+                  onChange={updateBase}
                 />
               </Grid>
-              <Grid size={{ xs: 6, md: 4 }}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="Observacion"
-                  type="label"
-                  name="observacion"
-                />
+              <Grid size={{ xs: 6, md: 5 }}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="Observaciones"
+                    value={obsInput}
+                    onChange={(e) => setObsInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') addObs();
+                    }}
+                  />
+                </Stack>
+
+                {/* Lista de observaciones agregadas */}
+                <Stack direction="column" spacing={1} sx={{ mt: 1 }}>
+                  {(form.observaciones ?? []).map((txt, idx) => (
+                    <Chip
+                      key={idx}
+                      label={txt.observacion}
+                      onDelete={() => removeObs(idx)}
+                    />
+                  ))}
+                </Stack>
               </Grid>
               <Grid size={{ xs: 6, md: 1 }}>
-                <Button variant="contained">
+                <Button onClick={addObs} variant="contained">
                   <AddIcon />
                 </Button>
               </Grid>
               <Grid size={{ xs: 6, md: 4 }}>
-                <Button variant="contained" startIcon={<UploadIcon />}>
+                <Button
+                  onClick={saveDatos}
+                  variant="contained"
+                  startIcon={<UploadIcon />}
+                >
                   Registrar Datos
                 </Button>
               </Grid>
@@ -170,10 +314,20 @@ export default function ControlSeleccionEmbalaje() {
             justifyContent="flex-end"
             sx={{ mb: 1 }}
           >
-            <Button size="small" variant="contained" startIcon={<AddIcon />}>
+            <Button
+              onClick={addRows}
+              size="small"
+              variant="contained"
+              startIcon={<AddIcon />}
+            >
               Agregar fila
             </Button>
-            <Button size="small" variant="contained" startIcon={<DeleteIcon />}>
+            <Button
+              onClick={removeRows}
+              size="small"
+              variant="contained"
+              startIcon={<DeleteIcon />}
+            >
               Quitar fila
             </Button>
           </Stack>
@@ -235,12 +389,13 @@ export default function ControlSeleccionEmbalaje() {
                     rowSpan={2}
                     align="center"
                     className="groupTitle"
+                    width={90}
                   >
                     Hora
                   </TableCell>
                   <TableCell
                     component="th"
-                    colSpan={13}
+                    colSpan={12}
                     align="center"
                     className="groupTitle"
                   >
@@ -398,16 +553,8 @@ export default function ControlSeleccionEmbalaje() {
                   </TableCell>
                   <TableCell
                     component="th"
-                    colSpan={1}
                     align="center"
-                    className="groupTitle"
-                  >
-                    4
-                  </TableCell>
-                  <TableCell
-                    component="th"
                     colSpan={1}
-                    align="center"
                     className="groupTitle"
                   >
                     cajas
@@ -418,22 +565,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <FormControl size="small">
-                      <InputLabel id="demo-simple-select-label">
-                        Defecto
-                      </InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={defecto}
-                        label="Age"
-                        onChange={handleChangeDefecto}
-                      >
-                        <MenuItem value={10}>3</MenuItem>
-                        <MenuItem value={20}>4</MenuItem>
-                        <MenuItem value={30}>serigrafia mala</MenuItem>
-                      </Select>
-                    </FormControl>
+                    <TextField
+                      size="small"
+                      name="segunda_defectoN1"
+                      value={form.segunda_defectoN1}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -441,22 +578,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <FormControl size="small">
-                      <InputLabel id="demo-simple-select-label">
-                        Defecto
-                      </InputLabel>
-                      <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={{}}
-                        label="Age"
-                        onChange={{}}
-                      >
-                        <MenuItem value={10}>Aire</MenuItem>
-                        <MenuItem value={20}>Goteado</MenuItem>
-                        <MenuItem value={30}>serigrafia mala</MenuItem>
-                      </Select>
-                    </FormControl>
+                    <TextField
+                      size="small"
+                      name="segunda_defectoN2"
+                      value={form.segunda_defectoN2}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -464,21 +591,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <FormControl size="small" sx={{ minWidth: 220 }}>
-                      <InputLabel id="defecto-label">Defecto</InputLabel>
-                      <Select
-                        labelId="defecto-label"
-                        value={defecto}
-                        label="Defecto"
-                        onChange={handleChangeDefecto}
-                      >
-                        {DEFECTOSSELECT.map((d) => (
-                          <MenuItem key={d.code} value={d.code}>
-                            {d.label}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+                    <TextField
+                      size="small"
+                      name="segunda_defectoN3"
+                      value={form.segunda_defectoN3}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -486,7 +604,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="segunda_defectoN4"
+                      value={form.segunda_defectoN4}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -494,7 +617,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="segunda_defectoN5"
+                      value={form.segunda_defectoN5}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -502,7 +630,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="segunda_defectoN6"
+                      value={form.segunda_defectoN6}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -510,7 +643,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="segunda_defectoN7"
+                      value={form.segunda_defectoN7}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -518,7 +656,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="segunda_defectoN8"
+                      value={form.segunda_defectoN8}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -526,7 +669,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="segunda_defectoN9"
+                      value={form.segunda_defectoN9}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -534,7 +682,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="segunda_defectoN10"
+                      value={form.segunda_defectoN10}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell component="th" className="groupTitle">
                     CAJAS
@@ -545,7 +698,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="tercera_defectoN1"
+                      value={form.tercera_defectoN1}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -553,7 +711,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="tercera_defectoN2"
+                      value={form.tercera_defectoN2}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -561,7 +724,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="tercera_defectoN3"
+                      value={form.tercera_defectoN3}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -569,7 +737,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="tercera_defectoN4"
+                      value={form.tercera_defectoN4}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -577,7 +750,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="tercera_defectoN5"
+                      value={form.tercera_defectoN5}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -585,7 +763,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="tercera_defectoN6"
+                      value={form.tercera_defectoN6}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -593,7 +776,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="tercera_defectoN7"
+                      value={form.tercera_defectoN7}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell className="groupTitle">Cajas</TableCell>
                   <TableCell
@@ -602,7 +790,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="casco_defectoN1"
+                      value={form.casco_defectoN1}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -610,7 +803,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="casco_defectoN2"
+                      value={form.casco_defectoN2}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -618,7 +816,12 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="casco_defectoN3"
+                      value={form.casco_defectoN3}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -626,131 +829,434 @@ export default function ControlSeleccionEmbalaje() {
                     align="center"
                     className="groupTitle"
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="casco_defectoN4"
+                      value={form.casco_defectoN4}
+                      onChange={updateBase}
+                    />
                   </TableCell>
-                  <TableCell className="groupTitle">(Min.)</TableCell>
+                  <TableCell className="groupTitle" align="center">
+                    (Min.)
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                </TableRow>
+                {form.tabla_seleccion_embalaje.map((row, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        type="time"
+                        value={row.hora}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'hora', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.a1}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'a1', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.a2}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'a2', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.a3}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'a3', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.b1}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'b1', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.b2}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'b2', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.b3}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'b3', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.c1}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'c1', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.c2}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'c2', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.c3}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'c3', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.d1}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'd1', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.d2}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'd2', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.d3}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'd3', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.cajas_segunda}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'cajas_segunda', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_segundaN1}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_segundaN1',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_segundaN2}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_segundaN2',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_segundaN3}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_segundaN3',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_segundaN4}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_segundaN4',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_segundaN5}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_segundaN5',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_segundaN6}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_segundaN6',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_segundaN7}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_segundaN7',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_segundaN8}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_segundaN8',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_segundaN9}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_segundaN9',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_segundaN10}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_segundaN10',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.cajas_tercera}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'cajas_tercera', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_terceraN1}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_terceraN1',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_terceraN2}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_terceraN2',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_terceraN3}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_terceraN3',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_terceraN4}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_terceraN4',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_terceraN5}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_terceraN5',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_terceraN6}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_terceraN6',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_terceraN7}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'defecto_terceraN7',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.cajas_casco}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'cajas_casco', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_cascoN1}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'defecto_cascoN1', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_cascoN2}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'defecto_cascoN2', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_cascoN3}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'defecto_cascoN3', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.defecto_cascoN4}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'defecto_cascoN4', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.espacio_min}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'espacio_min', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>

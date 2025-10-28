@@ -15,12 +15,111 @@ import {
   TableHead,
   TableBody,
   Divider,
+  Chip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UploadIcon from '@mui/icons-material/Upload';
+import { useState } from 'react';
 
+const tablaEsmaltacion = () => ({
+  hora: '',
+  operador_aplicacion_agua: '',
+  sup_prod_aplicacion_agua: '',
+  operador_aplicacion_engobe: '',
+  sup_prod_aplicacion_engobe: '',
+  operador_vizcosidad_normal: '',
+  sup_prod_vizcosidad_normal: '',
+  operador_densidad_recuperado: '',
+  sup_prod_densidad_recuperado: '',
+  operador_residuo_implemeable: '',
+  sup_prod_residuo_implemeable: '',
+  operador_aplicacion_esmalte: '',
+  sup_prod_aplicacion_esmalte: '',
+  operador_vizcosidad_brillante_recuperado: '',
+  sup_prod_vizcosidad_brillante_recuperado: '',
+  operador_densidad_transparente_satinado: '',
+  sup_prod_densidad_transparente_satinado: '',
+  operador_residuo_digital_blanco: '',
+  sup_prod_residuo_digital_blanco: '',
+});
+
+const initialForm = () => ({
+  fecha: '',
+  producto: '',
+  linea: '',
+  turno: '',
+  operador: '',
+  supervisor_turno: '',
+  agua_aplicacion: '',
+  normal_viscosidad: '',
+  recuperado_densidad: '',
+  implemeable_residuo: '',
+  brillante_viscosidad: '',
+  recuperado_viscosidad: '',
+  tranparente_densidad: '',
+  satinado_densidad: '',
+  digital_residuo: '',
+  blanco_residuo: '',
+  observaciones: [],
+  datos_tabla_esmalte: [tablaEsmaltacion()],
+});
+const rows = 8;
 export default function ControlLineaEsmaltacion() {
+  const [form, setForm] = useState(initialForm);
+  const [obsInput, setObsInput] = useState('');
+  const addObs = () => {
+    const v = obsInput.trim();
+    console.log('valor ', v);
+    if (!v) return;
+    setForm((f) => ({
+      ...f,
+      observaciones: [...(f.observaciones ?? []), { observacion: v }],
+    }));
+    setObsInput('');
+  };
+
+  const removeObs = (index) => {
+    setForm((f) => ({
+      ...f,
+      observaciones: f.observaciones.filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateBase = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+  };
+  const SaveData = () => {
+    console.log(form);
+  };
+  const setCargaTabla = (idx, field, value) => {
+    setForm((f) => {
+      const next = [...f.datos_tabla_esmalte];
+      next[idx] = { ...next[idx], [field]: value };
+      return { ...f, datos_tabla_esmalte: next };
+    });
+  };
+
+  const addRows = () => {
+    setForm((f) => {
+      if (f.datos_tabla_esmalte.length >= rows) return f;
+      return {
+        ...f,
+        datos_tabla_esmalte: [...f.datos_tabla_esmalte, tablaEsmaltacion()],
+      };
+    });
+  };
+
+  const removeRows = () => {
+    setForm((f) => {
+      if (f.datos_tabla_esmalte.length <= 0) return f;
+      return {
+        ...f,
+        datos_tabla_esmalte: f.datos_tabla_esmalte.slice(0, -1),
+      };
+    });
+  };
   return (
     <Box sx={{ bgcolor: '#f5f7fa', minHeight: '100vh' }}>
       <Paper>
@@ -58,6 +157,8 @@ export default function ControlLineaEsmaltacion() {
                   label="Fecha"
                   type="date"
                   name="fecha"
+                  value={form.fecha}
+                  onChange={updateBase}
                   InputLabelProps={{ shrink: true }}
                 />
               </Grid>
@@ -68,6 +169,8 @@ export default function ControlLineaEsmaltacion() {
                   label="Producto"
                   type="label"
                   name="producto"
+                  value={form.producto}
+                  onChange={updateBase}
                 />
               </Grid>
               <Grid size={{ xs: 6, md: 3 }}>
@@ -77,6 +180,8 @@ export default function ControlLineaEsmaltacion() {
                   label="Linea"
                   type="label"
                   name="linea"
+                  value={form.linea}
+                  onChange={updateBase}
                 />
               </Grid>
               <Grid size={{ xs: 6, md: 3 }}>
@@ -86,33 +191,68 @@ export default function ControlLineaEsmaltacion() {
                   label="Turno"
                   type="label"
                   name="turno"
+                  value={form.turno}
+                  onChange={updateBase}
                 />
               </Grid>
-              <Grid size={{ xs: 6, md: 3 }}>
+              <Grid size={{ xs: 6, md: 4 }}>
                 <TextField
                   fullWidth
                   size="small"
-                  label="Supervisor de Turno"
+                  label="Operador"
                   type="label"
-                  name="supervisor_turno"
+                  name="operador"
+                  value={form.operador}
+                  onChange={updateBase}
                 />
               </Grid>
-              <Grid size={{ xs: 6, md: 3 }}>
+              <Grid size={{ xs: 6, md: 4 }}>
                 <TextField
                   fullWidth
                   size="small"
-                  label="Aplicaciones Serigraficas "
+                  label="Supervisor Turno"
                   type="label"
                   name="supervisor_turno"
+                  value={form.supervisor_turno}
+                  onChange={updateBase}
                 />
+              </Grid>
+              <Grid size={{ xs: 6, md: 5 }}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="Observaciones"
+                    value={obsInput}
+                    onChange={(e) => setObsInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') addObs();
+                    }}
+                  />
+                </Stack>
+
+                {/* Lista de observaciones agregadas */}
+                <Stack direction="column" spacing={1} sx={{ mt: 1 }}>
+                  {(form.observaciones ?? []).map((txt, idx) => (
+                    <Chip
+                      key={idx}
+                      label={txt.observacion}
+                      onDelete={() => removeObs(idx)}
+                    />
+                  ))}
+                </Stack>
               </Grid>
               <Grid size={{ xs: 8, md: 1 }}>
-                <Button variant="contained">
+                <Button variant="contained" onClick={addObs}>
                   <AddIcon />
                 </Button>
               </Grid>
               <Grid size={{ sx: 6, md: 2 }}>
-                <Button variant="contained" startIcon={<UploadIcon />}>
+                <Button
+                  variant="contained"
+                  startIcon={<UploadIcon />}
+                  onClick={SaveData}
+                >
                   Registrar Datos
                 </Button>
               </Grid>
@@ -124,10 +264,20 @@ export default function ControlLineaEsmaltacion() {
             justifyContent="flex-end"
             sx={{ mb: 1 }}
           >
-            <Button size="small" variant="contained" startIcon={<AddIcon />}>
+            <Button
+              size="small"
+              onClick={addRows}
+              variant="contained"
+              startIcon={<AddIcon />}
+            >
               Agregar fila
             </Button>
-            <Button size="small" variant="contained" startIcon={<DeleteIcon />}>
+            <Button
+              size="small"
+              onClick={removeRows}
+              variant="contained"
+              startIcon={<DeleteIcon />}
+            >
               Quitar fila
             </Button>
           </Stack>
@@ -201,7 +351,10 @@ export default function ControlLineaEsmaltacion() {
                   >
                     <TextField
                       size="small"
-                      label="Agua"
+                      label="agua"
+                      name="agua_aplicacion"
+                      value={form.agua_aplicacion}
+                      onChange={updateBase}
                       InputLabelProps={{ shrink: true }}
                     />
                   </TableCell>
@@ -224,6 +377,9 @@ export default function ControlLineaEsmaltacion() {
                     <TextField
                       size="small"
                       label="Normal"
+                      name="normal_viscosidad"
+                      value={form.normal_viscosidad}
+                      onChange={updateBase}
                       InputLabelProps={{ shrink: true }}
                     />
                   </TableCell>
@@ -237,6 +393,9 @@ export default function ControlLineaEsmaltacion() {
                     <TextField
                       size="small"
                       label="Recuperado"
+                      name="recuperado_densidad"
+                      value={form.recuperado_densidad}
+                      onChange={updateBase}
                       InputLabelProps={{ shrink: true }}
                     />
                   </TableCell>
@@ -250,13 +409,16 @@ export default function ControlLineaEsmaltacion() {
                     <TextField
                       size="small"
                       label="Implemeable"
+                      name="implemeable_residuo"
+                      value={form.implemeable_residuo}
+                      onChange={updateBase}
                       InputLabelProps={{ shrink: true }}
                     />
                   </TableCell>
                   <TableCell
                     component="th"
                     colSpan={2}
-                    rowSpan={2}
+                    rowSpan={1}
                     align="center"
                     className="groupTitle"
                     style={{ width: 180 }}
@@ -273,6 +435,9 @@ export default function ControlLineaEsmaltacion() {
                     <TextField
                       size="small"
                       label="Brillante"
+                      name="brillante_viscosidad"
+                      value={form.brillante_viscosidad}
+                      onChange={updateBase}
                       InputLabelProps={{ shrink: true }}
                     />
                   </TableCell>
@@ -285,7 +450,10 @@ export default function ControlLineaEsmaltacion() {
                   >
                     <TextField
                       size="small"
-                      label="Recuperando"
+                      label="Recuperado"
+                      name="recuperado_viscosidad"
+                      value={form.recuperado_viscosidad}
+                      onChange={updateBase}
                       InputLabelProps={{ shrink: true }}
                     />
                   </TableCell>
@@ -299,6 +467,9 @@ export default function ControlLineaEsmaltacion() {
                     <TextField
                       size="small"
                       label="Transparente"
+                      name="tranparente_densidad"
+                      value={form.tranparente_densidad}
+                      onChange={updateBase}
                       InputLabelProps={{ shrink: true }}
                     />
                   </TableCell>
@@ -312,6 +483,9 @@ export default function ControlLineaEsmaltacion() {
                     <TextField
                       size="small"
                       label="Satinado"
+                      name="satinado_densidad"
+                      value={form.satinado_densidad}
+                      onChange={updateBase}
                       InputLabelProps={{ shrink: true }}
                     />
                   </TableCell>
@@ -325,6 +499,9 @@ export default function ControlLineaEsmaltacion() {
                     <TextField
                       size="small"
                       label="Digital"
+                      name="digital_residuo"
+                      value={form.digital_residuo}
+                      onChange={updateBase}
                       InputLabelProps={{ shrink: true }}
                     />
                   </TableCell>
@@ -335,7 +512,12 @@ export default function ControlLineaEsmaltacion() {
                     className="groupTitle"
                     style={{ width: 130 }}
                   >
-                    <TextField size="small" />
+                    <TextField
+                      size="small"
+                      name="blanco_residuo"
+                      value={form.blanco_residuos}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -393,7 +575,15 @@ export default function ControlLineaEsmaltacion() {
                     align="center"
                     className="groupTitle"
                   >
-                    aplicacion[g]
+                    viscocidad[s]
+                  </TableCell>
+                  <TableCell
+                    component="th"
+                    colSpan={2}
+                    align="center"
+                    className="groupTitle"
+                  >
+                    densidad[g/Cm²]
                   </TableCell>
                   <TableCell
                     component="th"
@@ -552,248 +742,254 @@ export default function ControlLineaEsmaltacion() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" type="time" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-              <TableBody>
-                <TableRow>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" type="time" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-              <TableBody>
-                <TableRow>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" type="time" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-              <TableBody>
-                <TableRow>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" type="time" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell component="th" colSpan={1} align="center">
-                    <TextField size="small" />
-                  </TableCell>
-                </TableRow>
+                {form.datos_tabla_esmalte.map((row, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell align="center">
+                      <TextField
+                        type="time"
+                        size="small"
+                        value={row.hora}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'hora', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.operador_aplicacion_agua}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_aplicacion_agua',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.sup_prod_aplicacion_agua}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'sup_prod_aplicacion_agua',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.operador_aplicacion_engobe}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_aplicacion_engobe',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.sup_prod_aplicacion_engobe}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'sup_prod_aplicacion_engobe',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.operador_vizcosidad_normal}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_vizcosidad_normal',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.sup_prod_vizcosidad_normal}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'sup_prod_vizcosidad_normal',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.operador_aplicacion_engobe}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_densidad_recuperado',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.sup_prod_densidad_recuperado}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'sup_prod_densidad_recuperado',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.operador_residuo_implemeable}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_residuo_implemeable',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.sup_prod_residuo_implemeable}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'sup_prod_residuo_implemeable',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.operador_aplicacion_esmalte}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_aplicacion_esmalte',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.sup_prod_aplicacion_esmalte}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'sup_prod_aplicacion_esmalte',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.operador_vizcosidad_brillante_recuperado}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_vizcosidad_brillante_recuperado',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.sup_prod_vizcosidad_brillante_recuperado}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'sup_prod_vizcosidad_brillante_recuperado',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.operador_densidad_transparente_satinado}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_densidad_transparente_satinado',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.sup_prod_densidad_transparente_satinado}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'sup_prod_densidad_transparente_satinado',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.operador_residuo_digital_blanco}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_residuo_digital_blanco',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <TextField
+                        size="small"
+                        value={row.sup_prod_residuo_digital_blanco}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'sup_prod_residuo_digital_blanco',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>

@@ -16,12 +16,108 @@ import {
   TableHead,
   TableBody,
   Divider,
+  Chip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UploadIcon from '@mui/icons-material/Upload';
+import { useState } from 'react';
 
+const datosTabla = () => ({
+  hora: '',
+  operador_apl_pasta1: '',
+  sp_apl_pasta1: '',
+  operador_v_pasta1: '',
+  sp_v_pasta1: '',
+  operador_d_pasta1: '',
+  sp_d_pasta1: '',
+  operador_apl_pasta2: '',
+  sp_apl_pasta2: '',
+  operador_v_pasta2: '',
+  sp_v_pasta2: '',
+  operador_d_pasta2: '',
+  sp_d_pasta2: '',
+  operador_apl_pasta3: '',
+  sp_apl_pasta3: '',
+  operador_v_pasta3: '',
+  sp_v_pasta3: '',
+  operador_d_pasta3: '',
+  sp_d_pasta3: '',
+  operador_apl_pasta4: '',
+  sp_apl_pasta4: '',
+  operador_v_pasta4: '',
+  sp_v_pasta4: '',
+  operador_d_pasta4: '',
+  sp_d_pasta4: '',
+});
+const initialForm = () => ({
+  fecha: '',
+  producto: '',
+  linea: '',
+  turno: '',
+  supervisor_turno: '',
+  observaciones: [],
+  operador: '',
+  pasta1: '',
+  pasta2: '',
+  pasta3: '',
+  pasta4: '',
+  datos_tabla_serigrafiado: [datosTabla()],
+});
+const rows = 8;
 export default function ControlSerigrafiaDecorado() {
+  const [form, setForm] = useState(initialForm());
+  const [obsInput, setObsInput] = useState('');
+  const addObs = () => {
+    const v = obsInput.trim();
+    console.log('valor ', v);
+    if (!v) return;
+    setForm((f) => ({
+      ...f,
+      observaciones: [...(f.observaciones ?? []), { observacion: v }],
+    }));
+    setObsInput('');
+  };
+
+  const removeObs = (index) => {
+    setForm((f) => ({
+      ...f,
+      observaciones: f.observaciones.filter((_, i) => i !== index),
+    }));
+  };
+
+  const addRows = () => {
+    setForm((f) => {
+      if (f.datos_tabla_serigrafiado.length >= rows) return f;
+      return {
+        ...f,
+        datos_tabla_serigrafiado: [...f.datos_tabla_serigrafiado, datosTabla()],
+      };
+    });
+  };
+  const removeRows = () => {
+    setForm((f) => {
+      if (f.datos_tabla_serigrafiado.length <= 0) return f;
+      return {
+        ...f,
+        datos_tabla_serigrafiado: f.datos_tabla_serigrafiado.slice(0, -1),
+      };
+    });
+  };
+  const updateBase = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+  };
+  const setCargaTabla = (idx, field, value) => {
+    setForm((f) => {
+      const next = [...f.datos_tabla_serigrafiado];
+      next[idx] = { ...next[idx], [field]: value };
+      return { ...f, datos_tabla_serigrafiado: next };
+    });
+  };
+  const saveData = () => {
+    console.log(form);
+  };
   return (
     <Box sx={{ bgcolor: '#f5f7fa', minHeight: '100vh' }}>
       <Paper>
@@ -59,6 +155,8 @@ export default function ControlSerigrafiaDecorado() {
                   label="Fecha"
                   type="date"
                   name="fecha"
+                  value={form.fecha}
+                  onChange={updateBase}
                   InputLabelProps={{ shrink: true }}
                 />
               </Grid>
@@ -69,6 +167,8 @@ export default function ControlSerigrafiaDecorado() {
                   label="Producto"
                   type="label"
                   name="producto"
+                  value={form.producto}
+                  onChange={updateBase}
                 />
               </Grid>
               <Grid size={{ xs: 6, md: 3 }}>
@@ -78,6 +178,8 @@ export default function ControlSerigrafiaDecorado() {
                   label="Linea"
                   type="label"
                   name="linea"
+                  value={form.linea}
+                  onChange={updateBase}
                 />
               </Grid>
               <Grid size={{ xs: 6, md: 3 }}>
@@ -87,33 +189,73 @@ export default function ControlSerigrafiaDecorado() {
                   label="Turno"
                   type="label"
                   name="turno"
+                  value={form.turno}
+                  onChange={updateBase}
                 />
               </Grid>
-              <Grid size={{ xs: 6, md: 3 }}>
+              <Grid size={{ xs: 6, md: 4 }}>
                 <TextField
                   fullWidth
                   size="small"
                   label="Supervisor de Turno"
                   type="label"
                   name="supervisor_turno"
+                  value={form.supervisor_turno}
+                  onChange={updateBase}
                 />
               </Grid>
-              <Grid size={{ xs: 6, md: 3 }}>
+              <Grid size={{ xs: 6, md: 4 }}>
                 <TextField
                   fullWidth
                   size="small"
-                  label="Aplicaciones Serigraficas "
+                  label="Operador"
                   type="label"
-                  name="supervisor_turno"
+                  name="operador"
+                  value={form.operador}
+                  onChange={updateBase}
                 />
               </Grid>
+              <Grid size={{ xs: 6, md: 5 }}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="Observaciones"
+                    value={obsInput}
+                    onChange={(e) => setObsInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') addObs();
+                    }}
+                  />
+                </Stack>
+
+                {/* Lista de observaciones agregadas */}
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  flexWrap="wrap"
+                  sx={{ mt: 1 }}
+                >
+                  {(form.observaciones ?? []).map((txt, idx) => (
+                    <Chip
+                      key={idx}
+                      label={txt.observacion}
+                      onDelete={() => removeObs(idx)}
+                    />
+                  ))}
+                </Stack>
+              </Grid>
               <Grid size={{ xs: 8, md: 1 }}>
-                <Button variant="contained">
+                <Button variant="contained" onClick={addObs}>
                   <AddIcon />
                 </Button>
               </Grid>
               <Grid size={{ sx: 6, md: 2 }}>
-                <Button variant="contained" startIcon={<UploadIcon />}>
+                <Button
+                  onClick={saveData}
+                  variant="contained"
+                  startIcon={<UploadIcon />}
+                >
                   Registrar Datos
                 </Button>
               </Grid>
@@ -146,13 +288,20 @@ export default function ControlSerigrafiaDecorado() {
             justifyContent="flex-end"
             sx={{ mb: 1 }}
           >
-            <Button size="small" variant="contained" startIcon={<UploadIcon />}>
-              Registrar Datos
-            </Button>
-            <Button size="small" variant="contained" startIcon={<AddIcon />}>
+            <Button
+              size="small"
+              onClick={addRows}
+              variant="contained"
+              startIcon={<AddIcon />}
+            >
               Agregar fila
             </Button>
-            <Button size="small" variant="contained" startIcon={<DeleteIcon />}>
+            <Button
+              size="small"
+              onClick={removeRows}
+              variant="contained"
+              startIcon={<DeleteIcon />}
+            >
               Quitar fila
             </Button>
           </Stack>
@@ -224,7 +373,13 @@ export default function ControlSerigrafiaDecorado() {
                     className="groupTitle"
                     style={{ width: 550 }}
                   >
-                    <TextField size="small" label="Pasta :1" />
+                    <TextField
+                      size="small"
+                      label="Pasta :1"
+                      name="pasta1"
+                      value={form.pasta1}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -233,7 +388,13 @@ export default function ControlSerigrafiaDecorado() {
                     className="groupTitle"
                     style={{ width: 550 }}
                   >
-                    <TextField size="small" label="Pasta :2" />
+                    <TextField
+                      size="small"
+                      label="Pasta :2"
+                      name="pasta2"
+                      value={form.pasta2}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -242,7 +403,13 @@ export default function ControlSerigrafiaDecorado() {
                     className="groupTitle"
                     style={{ width: 550 }}
                   >
-                    <TextField size="small" label="Pasta :3" />
+                    <TextField
+                      size="small"
+                      label="Pasta :3"
+                      name="pasta3"
+                      value={form.pasta3}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                   <TableCell
                     component="th"
@@ -251,7 +418,13 @@ export default function ControlSerigrafiaDecorado() {
                     className="groupTitle"
                     style={{ width: 550 }}
                   >
-                    <TextField size="small" label="Pasta :4" />
+                    <TextField
+                      size="small"
+                      label="Pasta :4"
+                      name="pasta4"
+                      value={form.pasta4}
+                      onChange={updateBase}
+                    />
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -548,314 +721,287 @@ export default function ControlSerigrafiaDecorado() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" />
-                  </TableCell>
-                </TableRow>
+                {form.datos_tabla_serigrafiado.map((row, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell>
+                      <TextField
+                        type="time"
+                        size="small"
+                        value={row.hora}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'hora', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.operador_apl_pasta1}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_apl_pasta1',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.sp_apl_pasta1}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'sp_apl_pasta1', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.operador_v_pasta1}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_v_pasta1',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.sp_v_pasta1}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'sp_v_pasta1', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.operador_d_pasta1}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_d_pasta1',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.sp_d_pasta1}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'sp_d_pasta1', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.operador_apl_pasta2}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_apl_pasta2',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.sp_apl_pasta2}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'sp_apl_pasta2', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.operador_v_pasta2}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_v_pasta2',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.sp_v_pasta2}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'sp_v_pasta2', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.operador_d_pasta2}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_d_pasta2',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.sp_d_pasta2}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'sp_d_pasta2', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.operador_apl_pasta3}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_apl_pasta3',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.sp_apl_pasta3}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'sp_apl_pasta3', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.operador_v_pasta3}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_v_pasta3',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.sp_v_pasta3}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'sp_v_pasta3', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.operador_d_pasta3}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_d_pasta3',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.sp_d_pasta3}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'sp_d_pasta3', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.operador_apl_pasta4}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_apl_pasta4',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.sp_apl_pasta4}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'sp_apl_pasta4', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.operador_v_pasta4}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_v_pasta4',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.sp_v_pasta4}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'sp_v_pasta4', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.operador_d_pasta4}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'operador_d_pasta4',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.sp_d_pasta4}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'sp_d_pasta4', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>

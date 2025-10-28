@@ -15,10 +15,40 @@ import {
   TableHead,
   TableBody,
   Divider,
+  Chip,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UploadIcon from '@mui/icons-material/Upload';
+
+const tablaPs = () => ({
+  hora: '',
+  humo_polvo: '',
+  masa_molde1: '',
+  masa_molde2: '',
+  masa_molde4: '',
+  masa_molde5: '',
+  masa_molde6: '',
+  masa_molde7: '',
+  espesor_molde1_a: '',
+  espesor_molde1_b: '',
+  espesor_molde2_a: '',
+  espesor_molde2_b: '',
+  espesor_molde3_a: '',
+  espesor_molde3_b: '',
+  espesor_molde4_a: '',
+  espesor_molde4_b: '',
+  espesor_molde5_a: '',
+  espesor_molde5_b: '',
+  espesor_molde6_a: '',
+  espesor_molde6_b: '',
+  granulometria_mallas35: '',
+  granulometria_mallas40: '',
+  granulometria_mallas70: '',
+  granulometria_mallas100: '',
+  granulometria_mallas120: '',
+  fond: ' ',
+});
 
 const ControlPS = () => ({
   fecha: '',
@@ -26,19 +56,71 @@ const ControlPS = () => ({
   turno: '',
   formato: '',
   supervisor_turno: '',
-  prodcuto: '',
+  producto: '',
   operador: '',
-  observacion: '',
+  presion_especifica: '',
+  golpes_inicial: '',
+  golpes_final: '',
+  total_golpes_turno: '',
+  observaciones: [],
+  tabla_prensado: [tablaPs()],
 });
-
+const rows = 8;
 export default function ControlPrensadoSecado() {
-  const [form, setFrom] = useState(ControlPS);
+  const [form, setForm] = useState(ControlPS);
+
+  const [obsInput, setObsInput] = useState('');
+
+  const addObs = () => {
+    const v = obsInput.trim();
+    console.log('valor ', v);
+    if (!v) return;
+    setForm((f) => ({
+      ...f,
+      observaciones: [...(f.observaciones ?? []), { observacion: v }],
+    }));
+    setObsInput('');
+  };
+
+  const removeObs = (index) => {
+    setForm((f) => ({
+      ...f,
+      observaciones: f.observaciones.filter((_, i) => i !== index),
+    }));
+  };
 
   const hadleInputChange = (event) => {
     const { name, value } = event.target;
-    setFrom({
+    setForm({
       ...form,
       [name]: value,
+    });
+  };
+  const addRows = () => {
+    setForm((f) => {
+      if (f.tabla_prensado.length >= rows) return f;
+      return {
+        ...f,
+        tabla_prensado: [...f.tabla_prensado, tablaPs()],
+      };
+    });
+  };
+
+  const removeRows = () => {
+    setForm((f) => {
+      if (f.tabla_prensado.length <= 0) return f;
+      return {
+        ...f,
+        tabla_prensado: f.tabla_prensado.slice(0, -1),
+      };
+    });
+  };
+
+  const setCargaTabla = (idx, field, value) => {
+    setForm((f) => {
+      const next = [...f.tabla_prensado];
+      next[idx] = { ...next[idx], [field]: value };
+      return { ...f, tabla_prensado: next };
     });
   };
   const habldeSumit = () => {
@@ -86,7 +168,7 @@ export default function ControlPrensadoSecado() {
                   onChange={hadleInputChange}
                 />
               </Grid>
-              <Grid size={{ xs: 6, md: 7 }}></Grid>
+
               <Grid size={{ xs: 6, md: 3 }}>
                 <TextField
                   fullWidth
@@ -109,7 +191,7 @@ export default function ControlPrensadoSecado() {
                   onChange={hadleInputChange}
                 />
               </Grid>
-              <Grid size={{ xs: 6, md: 1 }}>
+              <Grid size={{ xs: 6, md: 3 }}>
                 <TextField
                   fullWidth
                   value={form.formato}
@@ -154,18 +236,32 @@ export default function ControlPrensadoSecado() {
                 />
               </Grid>
               <Grid size={{ xs: 6, md: 4 }}>
-                <TextField
-                  fullWidth
-                  value={form.observacion}
-                  size="small"
-                  label="Observacion"
-                  type="label"
-                  name="observacion"
-                  onChange={hadleInputChange}
-                />
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="Observaciones"
+                    value={obsInput}
+                    onChange={(e) => setObsInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') addObs();
+                    }}
+                  />
+                </Stack>
+
+                {/* Lista de observaciones agregadas */}
+                <Stack direction="column" spacing={1} sx={{ mt: 1 }}>
+                  {(form.observaciones ?? []).map((txt, idx) => (
+                    <Chip
+                      key={idx}
+                      label={txt.observacion}
+                      onDelete={() => removeObs(idx)}
+                    />
+                  ))}
+                </Stack>
               </Grid>
               <Grid size={{ xs: 6, md: 1 }}>
-                <Button variant="contained">
+                <Button variant="contained" onClick={addObs}>
                   <AddIcon />
                 </Button>
               </Grid>
@@ -186,10 +282,20 @@ export default function ControlPrensadoSecado() {
             justifyContent="flex-end"
             sx={{ mb: 1 }}
           >
-            <Button size="small" variant="contained" startIcon={<AddIcon />}>
+            <Button
+              size="small"
+              variant="contained"
+              onClick={addRows}
+              startIcon={<AddIcon />}
+            >
               Agregar fila
             </Button>
-            <Button size="small" variant="contained" startIcon={<DeleteIcon />}>
+            <Button
+              size="small"
+              onClick={removeRows}
+              variant="contained"
+              startIcon={<DeleteIcon />}
+            >
               Quitar fila
             </Button>
           </Stack>
@@ -270,17 +376,17 @@ export default function ControlPrensadoSecado() {
                     rowSpan={2}
                     align="center"
                     className="groupTitle"
-                    style={{ width: 500 }}
+                    style={{ width: 600 }}
                   >
                     MASA POR MOLDE KG
                   </TableCell>
                   <TableCell
                     component="th"
-                    colSpan={10}
+                    colSpan={12}
                     rowSpan={1}
                     align="center"
                     className="groupTitle"
-                    style={{ width: 600 }}
+                    style={{ width: 990 }}
                   >
                     ESPESOR POR MOLDE MM
                   </TableCell>
@@ -290,7 +396,7 @@ export default function ControlPrensadoSecado() {
                     rowSpan={1}
                     align="center"
                     className="groupTitle"
-                    style={{ width: 450 }}
+                    style={{ width: 550 }}
                   >
                     GRANULOMETRIA
                   </TableCell>
@@ -335,6 +441,14 @@ export default function ControlPrensadoSecado() {
                     className="groupTitle"
                   >
                     molde <br />5
+                  </TableCell>
+                  <TableCell
+                    component="th"
+                    colSpan={2}
+                    align="center"
+                    className="groupTitle"
+                  >
+                    molde <br />6
                   </TableCell>
 
                   <TableCell
@@ -420,6 +534,22 @@ export default function ControlPrensadoSecado() {
                     B
                   </TableCell>
 
+                  <TableCell
+                    component="th"
+                    colSpan={1}
+                    align="center"
+                    className="groupTitle"
+                  >
+                    A
+                  </TableCell>
+                  <TableCell
+                    component="th"
+                    colSpan={1}
+                    align="center"
+                    className="groupTitle"
+                  >
+                    B
+                  </TableCell>
                   <TableCell
                     component="th"
                     colSpan={1}
@@ -544,222 +674,341 @@ export default function ControlPrensadoSecado() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                  <TableCell
-                    component="th"
-                    colSpan={1}
-                    align="center"
-                    className="groupTitle"
-                  >
-                    <TextField size="small"></TextField>
-                  </TableCell>
-                </TableRow>
+                {form.tabla_prensado.map((row, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        type="time"
+                        value={row.hora}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'hora', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.humo_polvo}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'humo_polvo', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.masa_molde1}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'masa_molde1', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.masa_molde2}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'masa_molde2', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.masa_molde3}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'masa_molde3', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.masa_molde4}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'masa_molde4', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.masa_molde5}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'masa_molde5', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.masa_molde6}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'masa_molde6', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.masa_molde7}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'masa_molde7', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.espesor_molde1_a}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'espesor_molde1_a',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.espesor_molde1_b}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'espesor_molde1_b',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.espesor_molde2_a}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'espesor_molde2_a',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.espesor_molde2_b}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'espesor_molde2_b',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.espesor_molde3_a}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'espesor_molde3_a',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.espesor_molde3_b}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'espesor_molde3_b',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.espesor_molde4_a}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'espesor_molde4_a',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.espesor_molde4_b}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'espesor_molde4_b',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.espesor_molde5_a}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'espesor_molde5_a',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.espesor_molde5_b}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'espesor_molde5_b',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.espesor_molde6_a}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'espesor_molde6_a',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.espesor_molde6_b}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'espesor_molde6_b',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.granulometria_mallas35}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'granulometria_mallas35',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.granulometria_mallas40}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'granulometria_mallas40',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.granulometria_mallas50}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'granulometria_mallas50',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.granulometria_mallas70}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'granulometria_mallas70',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.granulometria_mallas100}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'granulometria_mallas100',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.granulometria_mallas120}
+                        onChange={(e) => {
+                          setCargaTabla(
+                            idx,
+                            'granulometria_mallas120',
+                            e.target.value
+                          );
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        value={row.fond}
+                        onChange={(e) => {
+                          setCargaTabla(idx, 'fond', e.target.value);
+                        }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
 
           <Container maxWidth="xl">
-            <Grid container spacing={2}>
+            <Grid container spacing={1}>
               <Grid size={{ xs: 6, md: 6 }}>
                 <TableContainer
                   component={Paper}
@@ -828,7 +1077,12 @@ export default function ControlPrensadoSecado() {
                           align="center"
                           className="groupTitle"
                         >
-                          <TextField size="small" />
+                          <TextField
+                            size="small"
+                            name="presion_especifica"
+                            value={form.presion_especifica}
+                            onChange={hadleInputChange}
+                          />
                         </TableCell>
                       </TableRow>
                       <TableRow>
@@ -846,7 +1100,12 @@ export default function ControlPrensadoSecado() {
                           align="center"
                           className="groupTitle"
                         >
-                          <TextField size="small" />
+                          <TextField
+                            size="small"
+                            name="golpes_inicial"
+                            value={form.golpes_inicial}
+                            onChange={hadleInputChange}
+                          />
                         </TableCell>
                       </TableRow>
                       <TableRow>
@@ -864,7 +1123,12 @@ export default function ControlPrensadoSecado() {
                           align="center"
                           className="groupTitle"
                         >
-                          <TextField size="small" />
+                          <TextField
+                            size="small"
+                            name="golpes_final"
+                            value={form.golpes_final}
+                            onChange={hadleInputChange}
+                          />
                         </TableCell>
                       </TableRow>
                       <TableRow>
@@ -882,14 +1146,19 @@ export default function ControlPrensadoSecado() {
                           align="center"
                           className="groupTitle"
                         >
-                          <TextField size="small" />
+                          <TextField
+                            size="small"
+                            name="total_golpes_turno"
+                            value={form.total_golpes_turno}
+                            onChange={hadleInputChange}
+                          />
                         </TableCell>
                       </TableRow>
                     </TableHead>
                   </Table>
                 </TableContainer>
               </Grid>
-              <Grid size={{ xs: 6, md: 6 }}>
+              <Grid size={{ xs: 6, md: 12 }}>
                 <TableContainer
                   component={Paper}
                   sx={{
@@ -953,7 +1222,47 @@ export default function ControlPrensadoSecado() {
                         </TableCell>
                         <TableCell
                           component="th"
-                          colSpan={3}
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
                           align="center"
                           className="groupTitle"
                         >
@@ -971,7 +1280,47 @@ export default function ControlPrensadoSecado() {
                         </TableCell>
                         <TableCell
                           component="th"
-                          colSpan={3}
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
                           align="center"
                           className="groupTitle"
                         >
@@ -989,7 +1338,47 @@ export default function ControlPrensadoSecado() {
                         </TableCell>
                         <TableCell
                           component="th"
-                          colSpan={3}
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
                           align="center"
                           className="groupTitle"
                         >
@@ -1007,7 +1396,47 @@ export default function ControlPrensadoSecado() {
                         </TableCell>
                         <TableCell
                           component="th"
-                          colSpan={3}
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
+                          align="center"
+                          className="groupTitle"
+                        >
+                          <TextField size="small" />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          colSpan={2}
                           align="center"
                           className="groupTitle"
                         >
