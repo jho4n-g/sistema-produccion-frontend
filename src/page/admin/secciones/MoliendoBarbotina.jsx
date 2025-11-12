@@ -24,6 +24,7 @@ import LoadingScreen from '../../../components/general/LoadingScreen';
 import {
   getObj,
   getIdObj,
+  UpdateIdObj,
 } from '../../../service/SeccionesProduccion/Barbotina';
 import { toast } from 'react-toastify';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -93,9 +94,14 @@ export default function MoliendoBarbotina() {
   };
 
   const handleEditClick = (id) => {
-    console.log(id);
     setSelectedId(id);
     setIsEdit(true);
+    setOpenModal(true);
+  };
+
+  const handleViewClick = (id) => {
+    setSelectedId(id);
+    setIsEdit(false);
     setOpenModal(true);
   };
 
@@ -119,10 +125,6 @@ export default function MoliendoBarbotina() {
           >
             Control de Procesos - Moliendo barbotina
           </Typography>
-
-          <Button variant="contained" color="primary">
-            Buscar
-          </Button>
         </Box>
 
         <Paper sx={{ p: 4 }}>
@@ -225,7 +227,7 @@ export default function MoliendoBarbotina() {
                             <Button
                               variant="outlined"
                               size="small"
-                              onClick={() => setOpenModal(true)}
+                              onClick={() => handleViewClick(r.id)}
                             >
                               Detalles
                             </Button>
@@ -273,6 +275,7 @@ export default function MoliendoBarbotina() {
         open={openModal}
         onClose={() => setOpenModal(false)}
         fetchById={getIdObj}
+        updatedById={UpdateIdObj}
         id={selectedId}
         isEditing={isEdit}
         onSave={reload}

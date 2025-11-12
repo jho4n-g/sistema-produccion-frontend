@@ -19,7 +19,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import SeleccionEmbalajeModal from '../../../components/modales/SeleccionEmbalajeModal';
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { getObj } from '../../../service/SeccionesProduccion/SeleccionEmbalaje';
+import {
+  getObj,
+  getIdObj,
+  UpdateIdObj,
+} from '../../../service/SeccionesProduccion/SeleccionEmbalaje';
 import { toast } from 'react-toastify';
 import { normalize } from '../../../lib/convert';
 import LoadingScreen from '../../../components/general/LoadingScreen';
@@ -34,6 +38,8 @@ export default function SeleccionEmbalaje() {
   // paginado (cliente)
   const [page, setPage] = useState(0); // 0-based
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [selectedId, setSelectedId] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -84,9 +90,19 @@ export default function SeleccionEmbalaje() {
     setPage(0);
   };
   const handleEditClick = (id) => {
-    console.log(id);
-    console.log(row);
+    console.log('edit ', id);
+    setSelectedId(id);
+    setIsEdit(true);
+    setOpenModal(true);
   };
+
+  const handleViewClick = (id) => {
+    console.log(id);
+    setSelectedId(id);
+    setIsEdit(false);
+    setOpenModal(true);
+  };
+
   return (
     <>
       <Stack spacing={3}>
@@ -107,10 +123,6 @@ export default function SeleccionEmbalaje() {
           >
             Control de Procesos - Seleccion y Embalaje
           </Typography>
-
-          <Button variant="contained" color="primary">
-            Buscar
-          </Button>
         </Box>
 
         <Paper sx={{ p: 4 }}>
@@ -208,7 +220,7 @@ export default function SeleccionEmbalaje() {
                             <Button
                               variant="outlined"
                               size="small"
-                              onClick={() => setOpenModal(true)}
+                              onClick={() => handleViewClick(r.id)}
                             >
                               Detalles
                             </Button>
@@ -254,6 +266,11 @@ export default function SeleccionEmbalaje() {
       <SeleccionEmbalajeModal
         open={openModal}
         onClose={() => setOpenModal(false)}
+        fetchById={getIdObj}
+        updatedById={UpdateIdObj}
+        id={selectedId}
+        isEditing={isEdit}
+        onSave={reload}
       />
     </>
   );
