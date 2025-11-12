@@ -54,6 +54,7 @@ import ControlSeleccionEmbalaje from './ControProcesos/ControlSeleccionEmbalaje'
 import ControlPrensadoSecado from './ControProcesos/ControlPrensadoSecado';
 import ControlLineaEsmaltacion from './ControProcesos/ControlLineaEsmaltacion';
 import ControlSerigrafiaDecorado from './ControProcesos/ControlSerigrafiaDecorado';
+import InformeProduccion from './JefeProduccion/InformeProduccion';
 
 // ————————————————————————————————————————————————
 
@@ -92,6 +93,11 @@ export default function AppBarTabsMockup() {
     {
       key: 'serigrafica',
       label: 'Serigrafia y Decorado',
+      icon: <FactCheckIcon />,
+    },
+    {
+      key: 'informeProduccion',
+      label: 'Informe Porduccon',
       icon: <FactCheckIcon />,
     },
   ];
@@ -183,6 +189,7 @@ export default function AppBarTabsMockup() {
         {section === 'prensado' && <ControlPrensadoSecado />}
         {section === 'esmaltacion' && <ControlLineaEsmaltacion />}
         {section === 'serigrafica' && <ControlSerigrafiaDecorado />}
+        {section === 'informeProduccion' && <InformeProduccion />}
       </Container>
 
       <Box sx={{ py: 4, textAlign: 'center', color: 'text.secondary' }}>

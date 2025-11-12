@@ -22,6 +22,8 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UploadIcon from '@mui/icons-material/Upload';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
+import { registerObj } from '../../../service/SeccionesProduccion/ControlSerigrafia';
 
 const datosTabla = () => ({
   hora: '',
@@ -56,7 +58,7 @@ const initialForm = () => ({
   linea: '',
   turno: '',
   supervisor_turno: '',
-  observaciones: [],
+  observacionesSer: [],
   operador: '',
   pasta1: '',
   pasta2: '',
@@ -74,7 +76,7 @@ export default function ControlSerigrafiaDecorado() {
     if (!v) return;
     setForm((f) => ({
       ...f,
-      observaciones: [...(f.observaciones ?? []), { observacion: v }],
+      observacionesSer: [...(f.observacionesSer ?? []), { observacion: v }],
     }));
     setObsInput('');
   };
@@ -82,7 +84,7 @@ export default function ControlSerigrafiaDecorado() {
   const removeObs = (index) => {
     setForm((f) => ({
       ...f,
-      observaciones: f.observaciones.filter((_, i) => i !== index),
+      observacionesSer: f.observacionesSer.filter((_, i) => i !== index),
     }));
   };
 
@@ -115,8 +117,15 @@ export default function ControlSerigrafiaDecorado() {
       return { ...f, datos_tabla_serigrafiado: next };
     });
   };
-  const saveData = () => {
-    console.log(form);
+  const saveData = async () => {
+    try {
+      const res = await registerObj(form);
+      console.log(res);
+      toast.success('Datos guardados');
+    } catch (e) {
+      console.log(e);
+      toast.error(e.message);
+    }
   };
   return (
     <Box sx={{ bgcolor: '#f5f7fa', minHeight: '100vh' }}>
@@ -236,7 +245,7 @@ export default function ControlSerigrafiaDecorado() {
                   flexWrap="wrap"
                   sx={{ mt: 1 }}
                 >
-                  {(form.observaciones ?? []).map((txt, idx) => (
+                  {(form.observacionesSer ?? []).map((txt, idx) => (
                     <Chip
                       key={idx}
                       label={txt.observacion}

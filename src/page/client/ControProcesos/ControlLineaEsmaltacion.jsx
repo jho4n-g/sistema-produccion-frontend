@@ -21,6 +21,9 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UploadIcon from '@mui/icons-material/Upload';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
+
+import { registerObj } from '../../../service/SeccionesProduccion/controlEsmalte';
 
 const tablaEsmaltacion = () => ({
   hora: '',
@@ -61,7 +64,7 @@ const initialForm = () => ({
   satinado_densidad: '',
   digital_residuo: '',
   blanco_residuo: '',
-  observaciones: [],
+  observaciones_esmalte: [],
   datos_tabla_esmalte: [tablaEsmaltacion()],
 });
 const rows = 8;
@@ -74,7 +77,10 @@ export default function ControlLineaEsmaltacion() {
     if (!v) return;
     setForm((f) => ({
       ...f,
-      observaciones: [...(f.observaciones ?? []), { observacion: v }],
+      observaciones_esmalte: [
+        ...(f.observaciones_esmalte ?? []),
+        { observacion: v },
+      ],
     }));
     setObsInput('');
   };
@@ -82,7 +88,9 @@ export default function ControlLineaEsmaltacion() {
   const removeObs = (index) => {
     setForm((f) => ({
       ...f,
-      observaciones: f.observaciones.filter((_, i) => i !== index),
+      observaciones_esmalte: f.observaciones_esmalte.filter(
+        (_, i) => i !== index
+      ),
     }));
   };
 
@@ -90,8 +98,15 @@ export default function ControlLineaEsmaltacion() {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
   };
-  const SaveData = () => {
-    console.log(form);
+  const SaveData = async () => {
+    try {
+      const res = await registerObj(form);
+      console.log(res);
+      toast.success('Datos guardados');
+    } catch (e) {
+      console.log(e);
+      toast.error(e.message);
+    }
   };
   const setCargaTabla = (idx, field, value) => {
     setForm((f) => {
@@ -233,7 +248,7 @@ export default function ControlLineaEsmaltacion() {
 
                 {/* Lista de observaciones agregadas */}
                 <Stack direction="column" spacing={1} sx={{ mt: 1 }}>
-                  {(form.observaciones ?? []).map((txt, idx) => (
+                  {(form.observaciones_esmalte ?? []).map((txt, idx) => (
                     <Chip
                       key={idx}
                       label={txt.observacion}
@@ -835,7 +850,7 @@ export default function ControlLineaEsmaltacion() {
                     <TableCell align="center">
                       <TextField
                         size="small"
-                        value={row.operador_aplicacion_engobe}
+                        value={row.operador_densidad_recuperado}
                         onChange={(e) => {
                           setCargaTabla(
                             idx,

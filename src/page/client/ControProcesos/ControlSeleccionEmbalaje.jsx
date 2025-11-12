@@ -24,7 +24,9 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UploadIcon from '@mui/icons-material/Upload';
+import { toast } from 'react-toastify';
 import { useState } from 'react';
+import { registerObj } from '../../../service/SeccionesProduccion/SeleccionEmbalaje';
 
 const DatosTabla = () => ({
   hora: '',
@@ -79,7 +81,7 @@ const formInitial = () => ({
   turno: '',
   supervisor_turno: '',
   grupo: '',
-  observaciones: [],
+  observacion_embalaje: [],
   segunda_defectoN1: '',
   segunda_defectoN2: '',
   segunda_defectoN3: '',
@@ -114,7 +116,10 @@ export default function ControlSeleccionEmbalaje() {
     if (!v) return;
     setForm((f) => ({
       ...f,
-      observaciones: [...(f.observaciones ?? []), { observacion: v }],
+      observacion_embalaje: [
+        ...(f.observacion_embalaje ?? []),
+        { observacion: v },
+      ],
     }));
     setObsInput('');
   };
@@ -122,7 +127,9 @@ export default function ControlSeleccionEmbalaje() {
   const removeObs = (index) => {
     setForm((f) => ({
       ...f,
-      observaciones: f.observaciones.filter((_, i) => i !== index),
+      observacion_embalaje: f.observacion_embalaje.filter(
+        (_, i) => i !== index
+      ),
     }));
   };
 
@@ -131,8 +138,15 @@ export default function ControlSeleccionEmbalaje() {
     setForm((f) => ({ ...f, [name]: value }));
   };
 
-  const saveDatos = () => {
-    console.log(form);
+  const saveDatos = async () => {
+    try {
+      const res = await registerObj(form);
+      console.log(res);
+      toast.success('Datos guardados');
+    } catch (e) {
+      console.log(e);
+      toast.error(e.message);
+    }
   };
   const addRows = () => {
     setForm((f) => {
@@ -283,7 +297,7 @@ export default function ControlSeleccionEmbalaje() {
 
                 {/* Lista de observaciones agregadas */}
                 <Stack direction="column" spacing={1} sx={{ mt: 1 }}>
-                  {(form.observaciones ?? []).map((txt, idx) => (
+                  {(form.observacion_embalaje ?? []).map((txt, idx) => (
                     <Chip
                       key={idx}
                       label={txt.observacion}

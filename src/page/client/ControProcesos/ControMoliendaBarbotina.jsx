@@ -554,7 +554,7 @@ export default function BarbotinaHoja() {
               <Table
                 stickyHeader
                 sx={{
-                  tableLayout: { xs: 'auto', md: 'fixed' },
+                  tableLayout: 'aunto',
                   width: '100%',
                   borderCollapse: 'collapse',
                   '& td, & th': { border: '1px solid #D1D5DB' },
@@ -613,30 +613,25 @@ export default function BarbotinaHoja() {
                       component="th"
                       rowSpan={3}
                       align="center"
-                      sx={{ minWidth: 56 }}
                       className="stickyCol"
+                      sx={{ width: 20 }}
                     >
                       N°
                     </TableCell>
-                    <TableCell
-                      component="th"
-                      rowSpan={3}
-                      align="center"
-                      sx={{ minWidth: 100 }}
-                    >
+                    <TableCell component="th" rowSpan={3} align="center">
                       Hora Inicio
                     </TableCell>
-                    <TableCell
-                      component="th"
-                      rowSpan={3}
-                      align="center"
-                      sx={{ minWidth: 100 }}
-                    >
+                    <TableCell component="th" rowSpan={3} align="center">
                       Hora Fin
                     </TableCell>
 
                     {/* Tres grupos con subcolumnas (Lugar1/2/3) */}
-                    <TableCell component="th" align="center" colSpan={2}>
+                    <TableCell
+                      sx={{ width: 1000 }}
+                      component="th"
+                      align="center"
+                      colSpan={2}
+                    >
                       <TextField
                         size="small"
                         label="Lugar 1"
@@ -645,6 +640,7 @@ export default function BarbotinaHoja() {
                         InputLabelProps={{ shrink: true }}
                         value={form.nombre_lugar_uno}
                         onChange={updateBase}
+                        sx={{ width: 100 }}
                       />
                     </TableCell>
                     <TableCell component="th" align="center" colSpan={2}>
@@ -656,6 +652,7 @@ export default function BarbotinaHoja() {
                         InputLabelProps={{ shrink: true }}
                         value={form.nombre_lugar_dos}
                         onChange={updateBase}
+                        sx={{ width: 100 }}
                       />
                     </TableCell>
                     <TableCell component="th" align="center" colSpan={2}>
@@ -667,6 +664,7 @@ export default function BarbotinaHoja() {
                         InputLabelProps={{ shrink: true }}
                         value={form.nombre_lugar_tres}
                         onChange={updateBase}
+                        sx={{ width: 100 }}
                       />
                     </TableCell>
 
@@ -734,36 +732,35 @@ export default function BarbotinaHoja() {
 
                   {/* Subfila con Hum% + campo (solo en header) */}
                   <TableRow>
-                    <TableCell align="center">Hum %</TableCell>
-                    <TableCell align="center">
+                    <TableCell colSpan={2} align="center">
                       <TextField
                         size="small"
                         fullWidth
-                        placeholder="%"
+                        placeholder="Hum %"
                         name="humedad_lugar_uno"
                         InputLabelProps={{ shrink: true }}
                         value={form.humedad_lugar_uno}
                         onChange={updateBase}
                       />
                     </TableCell>
-                    <TableCell align="center">Hum %</TableCell>
-                    <TableCell align="center">
+
+                    <TableCell colSpan={2} align="center">
                       <TextField
                         size="small"
                         fullWidth
-                        placeholder="%"
+                        placeholder="Hum %"
                         name="humedad_lugar_dos"
                         InputLabelProps={{ shrink: true }}
                         value={form.humedad_lugar_dos}
                         onChange={updateBase}
                       />
                     </TableCell>
-                    <TableCell align="center">Hum %</TableCell>
-                    <TableCell align="center">
+
+                    <TableCell colSpan={2} align="center">
                       <TextField
                         size="small"
                         fullWidth
-                        placeholder="%"
+                        placeholder="Hum %"
                         name="humedad_lugar_tres"
                         InputLabelProps={{ shrink: true }}
                         value={form.humedad_lugar_tres}

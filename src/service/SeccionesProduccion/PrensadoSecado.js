@@ -1,14 +1,9 @@
 import { api } from '../api';
 
-export const registerObj = async (payload) => {
-  const res = await api.post('/atomizado', payload);
-  return res.data;
-};
-
 export const getObj = async () => {
   try {
     // console.log('En service barbotina');
-    const data = await api.get('/atomizado');
+    const data = await api.get('/barbotina');
     return data.data;
   } catch (e) {
     return e.message;
