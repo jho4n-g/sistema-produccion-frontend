@@ -48,7 +48,7 @@ const makeTheme = (mode) =>
       info: { main: '#2D6BFF', contrastText: '#FFFFFF' },
       success: { main: '#2DC653', contrastText: '#0B1F12' }, // de tu paleta
       warning: { main: '#FFAB00', contrastText: '#1B1300' },
-      error: { main: '#E94C1D', contrastText: '#FFFFFF' },
+      error: { main: '#c04722ff', contrastText: '#FFFFFF' },
       ...(mode === 'dark'
         ? {
             background: { default: '#0e1111', paper: '#111416' },
@@ -180,7 +180,7 @@ export default function App() {
       icon: <InboxIcon />,
       path: '/admin/user-page',
     },
-    { text: 'Gestion de Roles', icon: <MailIcon />, path: '/admin/role-page' },
+
     {
       text: 'Informe Produccion',
       icon: <MailIcon />,

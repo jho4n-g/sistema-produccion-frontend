@@ -29,6 +29,7 @@ import {
 import { toast } from 'react-toastify';
 import { useCallback, useEffect, useMemo } from 'react';
 import { normalize } from '../../../lib/convert';
+import ConfirmModal from '../../../components/general/ConfirmModal';
 
 export default function MoliendoBarbotina() {
   const [query, setQuery] = useState('');
@@ -41,6 +42,9 @@ export default function MoliendoBarbotina() {
   // paginado (cliente)
   const [page, setPage] = useState(0); // 0-based
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  //modal
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -238,6 +242,14 @@ export default function MoliendoBarbotina() {
                             >
                               Editar
                             </Button>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              color="error"
+                              onClick={() => setConfirmOpen(true)}
+                            >
+                              Elminar
+                            </Button>
                           </Stack>
                         </TableCell>
                       </TableRow>
@@ -279,6 +291,13 @@ export default function MoliendoBarbotina() {
         id={selectedId}
         isEditing={isEdit}
         onSave={reload}
+      />
+      <ConfirmModal
+        open={confirmOpen}
+        title="¿Esta seguro que desea eliminar?"
+        message="Esta acción no se puede deshacer."
+        onConfirm={() => {}}
+        onCancel={() => setConfirmOpen(false)}
       />
     </>
   );

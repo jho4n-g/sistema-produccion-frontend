@@ -13,22 +13,94 @@ import {
   Grid,
   TextField,
   TablePagination,
+  IconButton,
 } from '@mui/material';
-import { useState } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import PrensadoSecadoModal from '../../../components/modales/PrensadoSecadoModal';
+import {
+  UpdateIdObj,
+  getIdObj,
+  getObj,
+} from '../../../service/SeccionesProduccion/PrensadoSecado';
+import { toast } from 'react-toastify';
+import { normalize } from '../../../lib/convert';
+import LoadingScreen from '../../../components/general/LoadingScreen';
+
 export default function PrensadoSecado() {
   const [query, setQuery] = useState('');
   const [openModal, setOpenModal] = useState(false);
+  //tabla
+  const [row, setRow] = useState([]);
+  const [loading, setLoading] = useState(false);
   // paginado (cliente)
   const [page, setPage] = useState(0); // 0-based
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [isEdit, setIsEdit] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+
+  const reload = useCallback(async () => {
+    setLoading(true);
+    try {
+      const obj = await getObj();
+      setRow(Array.isArray(obj?.datos) ? obj.datos : []);
+    } catch (e) {
+      toast.error(e.message || 'Error al cargar lo datos');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    reload();
+  }, [reload]);
+
+  const filtered = useMemo(() => {
+    const q = normalize(query);
+    if (!q) return row;
+    return row.filter((r) => {
+      // Busca en columnas simples
+      const matchSimple = [
+        'fecha',
+        'n_prensa',
+        'turno',
+        'formato',
+        'supervisor_turno',
+        'operador',
+        'producto',
+      ].some((k) => normalize(r?.[k]).includes(q));
+
+      // Busca dentro de las observaciones anidadas
+      const matchObs = r.observaciones_prensado_secado?.some((o) =>
+        normalize(o?.observacion).includes(q)
+      );
+
+      return matchSimple || matchObs;
+    });
+  }, [row, query]);
+
+  const paginated = useMemo(() => {
+    const start = page * rowsPerPage;
+    return filtered.slice(start, start + rowsPerPage);
+  }, [filtered, page, rowsPerPage]);
 
   const handleChangePage = (_evt, newPage) => setPage(newPage);
   const handleChangeRowsPerPage = (evt) => {
     setRowsPerPage(parseInt(evt.target.value, 10));
     setPage(0);
+  };
+  const handleEditClick = (id) => {
+    setSelectedId(id);
+    setIsEdit(true);
+    setOpenModal(true);
+  };
+
+  const handleViewClick = (id) => {
+    setSelectedId(id);
+    setIsEdit(false);
+    setOpenModal(true);
   };
   return (
     <>
@@ -114,51 +186,75 @@ export default function PrensadoSecado() {
                   <TableCell>ACCIONES</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody hover sx={{ bgcolor: 'white' }}>
-                {/* Ejemplo: ahora el body debe tener 13 celdas (columnas finales) */}
-                <TableRow hover>
-                  <TableCell>1</TableCell>
-                  <TableCell>2025-05-20</TableCell>
-                  <TableCell>Mañana</TableCell>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={12}>
+                      <LoadingScreen />
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <>
+                    {paginated.map((r, idx) => (
+                      <TableRow key={r.id ?? idx}>
+                        <TableCell align="center">
+                          {page * rowsPerPage + idx + 1}
+                        </TableCell>
+                        <TableCell align="center" sx={{ width: 130 }}>
+                          {r.fecha}
+                        </TableCell>
+                        <TableCell align="center">{r.turno}</TableCell>
+                        <TableCell colSpan={2}>{r.operador}</TableCell>
+                        <TableCell>{r.n_prensa}</TableCell>
+                        <TableCell>{r.formato}</TableCell>
+                        <TableCell>{r.producto}</TableCell>
 
-                  {/* OPERADOR ocupa 2 */}
-                  <TableCell colSpan={2}>
-                    Jhoan Sebastian Gutierrez Velsco
-                  </TableCell>
+                        <TableCell colSpan={2}>
+                          {r.observaciones_prensado_secado?.length
+                            ? r.observaciones_prensado_secado
+                                .map((obs) => obs?.observacion)
+                                .filter(Boolean)
+                                .join(', ')
+                            : '—'}
+                        </TableCell>
+                        <TableCell>
+                          <Stack spacing={1}>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              onClick={() => handleViewClick(r.id)}
+                            >
+                              Detalles
+                            </Button>
+                            <Button
+                              variant="contained"
+                              size="small"
+                              onClick={() => handleEditClick(r.id)}
+                            >
+                              Editar
+                            </Button>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))}
 
-                  {/* EQUIPO ocupa 2 */}
-                  <TableCell>EQ-001</TableCell>
-
-                  <TableCell>1200</TableCell>
-                  <TableCell>1220</TableCell>
-
-                  {/* OBSERVACIONES ocupa 2 */}
-                  <TableCell colSpan={2}>
-                    <p>
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Dolores perspiciatis, quidem ipsum recusandae nihil ut
-                      cumque repellat totam nulla! Incidunt sequi quod beatae
-                      maiores, fuga voluptate cum molestias. Inventore, quae?
-                    </p>
-                  </TableCell>
-
-                  <TableCell>
-                    <Stack direction="column" spacing={1}>
-                      <Button
-                        variant="outlined"
-                        onClick={() => setOpenModal(true)}
-                      >
-                        Detalles
-                      </Button>
-                      <Button variant="contained">Editar</Button>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
+                    {paginated.length === 0 && (
+                      <TableRow>
+                        <TableCell
+                          colSpan={11}
+                          sx={{ color: '#777', textAlign: 'center' }}
+                        >
+                          Sin resultados
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
+                )}
               </TableBody>
             </Table>
             <TablePagination
               component="div"
-              count={{}} // total después del filtro
+              count={filtered.length} // total después del filtro
               page={page}
               onPageChange={handleChangePage}
               rowsPerPage={rowsPerPage}
@@ -172,6 +268,11 @@ export default function PrensadoSecado() {
       <PrensadoSecadoModal
         open={openModal}
         onClose={() => setOpenModal(false)}
+        fetchById={getIdObj}
+        updatedById={UpdateIdObj}
+        id={selectedId}
+        isEditing={isEdit}
+        onSave={reload}
       />
     </>
   );

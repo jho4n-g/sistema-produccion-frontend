@@ -49,8 +49,8 @@ export const optStr = (label) => {
       invalid_type_error: `El campo ${label} debe ser texto`,
     })
     .trim()
-    .min(1, `El campo ${label} debe ser más de un caracter`)
-    .nullish(); // ← permite null o undefined
+    .nullish()
+    .optional();
 };
 
 export const reqStr = (label) => {
@@ -87,5 +87,5 @@ export const reqFloat = (label) => {
       invalid_type_error: `El campo ${label} debe ser numérico`,
     })
     .finite(`${label} debe ser numérico válido`)
-    .min(1, `Debe se mas de un caracter ${label} `);
+    .min(0, `Debe se mas de un caracter ${label} `);
 };

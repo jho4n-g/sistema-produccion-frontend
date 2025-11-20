@@ -486,7 +486,7 @@ export default function SerigraficaDecoradodoModal({
                     rowSpan={2}
                     align="center"
                     className="groupTitle"
-                    width={90}
+                    width={120}
                   >
                     Hora
                   </TableCell>
@@ -1013,7 +1013,7 @@ export default function SerigraficaDecoradodoModal({
               <TableBody>
                 {form?.tabla_seleccion_embalaje?.map((row, idx) => (
                   <TableRow key={idx}>
-                    <TableCell sx={{ padding: '1px', minWidth: 110 }}>
+                    <TableCell>
                       <TextField
                         size="small"
                         type="time"

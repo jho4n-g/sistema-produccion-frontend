@@ -19,14 +19,18 @@ import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import AtomizadoModal from '../../../components/modales/AtomizadoModal';
-import { getObj } from '../../../service/SeccionesProduccion/Atomizado';
+import {
+  getObj,
+  UpdateIdObj,
+  getIdObj,
+} from '../../../service/SeccionesProduccion/Atomizado';
 import { toast } from 'react-toastify';
 import { normalize } from '../../../lib/convert';
 import LoadingScreen from '../../../components/general/LoadingScreen';
 
 export default function Atomizador() {
   const [query, setQuery] = useState('');
-  const [open, setOpenModal] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   //tabla
   const [row, setRow] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -34,6 +38,9 @@ export default function Atomizador() {
   // paginado (cliente)
   const [page, setPage] = useState(0); // 0-based
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [isEdit, setIsEdit] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -85,8 +92,15 @@ export default function Atomizador() {
     setPage(0);
   };
   const handleEditClick = (id) => {
-    console.log(id);
-    console.log(row);
+    setSelectedId(id);
+    setIsEdit(true);
+    setOpenModal(true);
+  };
+
+  const handleViewClick = (id) => {
+    setSelectedId(id);
+    setIsEdit(false);
+    setOpenModal(true);
   };
 
   return (
@@ -203,7 +217,7 @@ export default function Atomizador() {
                             <Button
                               variant="outlined"
                               size="small"
-                              onClick={() => setOpenModal(true)}
+                              onClick={() => handleViewClick(r.id)}
                             >
                               Detalles
                             </Button>
@@ -246,7 +260,15 @@ export default function Atomizador() {
           </TableContainer>
         </Paper>
       </Stack>
-      <AtomizadoModal open={open} onClose={() => setOpenModal(false)} />
+      <AtomizadoModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        fetchById={getIdObj}
+        updatedById={UpdateIdObj}
+        id={selectedId}
+        isEditing={isEdit}
+        onSave={reload}
+      />
     </>
   );
 }

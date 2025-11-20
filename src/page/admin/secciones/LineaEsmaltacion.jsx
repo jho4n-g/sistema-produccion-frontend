@@ -22,7 +22,11 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { normalize } from '../../../lib/convert';
 import LoadingScreen from '../../../components/general/LoadingScreen';
 import { toast } from 'react-toastify';
-import { getObj } from '../../../service/SeccionesProduccion/controlEsmalte';
+import {
+  getObj,
+  UpdateIdObj,
+  getIdObj,
+} from '../../../service/SeccionesProduccion/controlEsmalte';
 
 export default function LineaEsmaltacion() {
   const [query, setQuery] = useState('');
@@ -33,6 +37,9 @@ export default function LineaEsmaltacion() {
   // paginado (cliente)
   const [page, setPage] = useState(0); // 0-based
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [isEdit, setIsEdit] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -83,8 +90,15 @@ export default function LineaEsmaltacion() {
     setPage(0);
   };
   const handleEditClick = (id) => {
-    console.log(id);
-    console.log(row);
+    setSelectedId(id);
+    setIsEdit(true);
+    setOpenModal(true);
+  };
+
+  const handleViewClick = (id) => {
+    setSelectedId(id);
+    setIsEdit(false);
+    setOpenModal(true);
   };
   return (
     <>
@@ -204,7 +218,7 @@ export default function LineaEsmaltacion() {
                             <Button
                               variant="outlined"
                               size="small"
-                              onClick={() => setOpenModal(true)}
+                              onClick={() => handleViewClick(r.id)}
                             >
                               Detalles
                             </Button>
@@ -250,6 +264,11 @@ export default function LineaEsmaltacion() {
       <LienaEsmaltacionModal
         open={openModal}
         onClose={() => setOpenModal(false)}
+        fetchById={getIdObj}
+        updatedById={UpdateIdObj}
+        id={selectedId}
+        isEditing={isEdit}
+        onSave={reload}
       />
     </>
   );

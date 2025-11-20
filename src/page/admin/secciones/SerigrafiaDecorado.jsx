@@ -19,7 +19,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import SerigrafiaDecoradoModal from '../../../components/modales/SerigrafiaDecoradoModal';
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { getObj } from '../../../service/SeccionesProduccion/ControlSerigrafia';
+import {
+  getObj,
+  UpdateIdObj,
+  getIdObj,
+} from '../../../service/SeccionesProduccion/ControlSerigrafia';
 import { toast } from 'react-toastify';
 import { normalize } from '../../../lib/convert';
 import LoadingScreen from '../../../components/general/LoadingScreen';
@@ -35,6 +39,9 @@ export default function SerigrafiaDecorado() {
   // paginado (cliente)
   const [page, setPage] = useState(0); // 0-based
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const [isEdit, setIsEdit] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
   const reload = useCallback(async () => {
     setLoading(true);
@@ -84,9 +91,17 @@ export default function SerigrafiaDecorado() {
     setRowsPerPage(parseInt(evt.target.value, 10));
     setPage(0);
   };
+
   const handleEditClick = (id) => {
-    console.log(id);
-    console.log(row);
+    setSelectedId(id);
+    setIsEdit(true);
+    setOpenModal(true);
+  };
+
+  const handleViewClick = (id) => {
+    setSelectedId(id);
+    setIsEdit(false);
+    setOpenModal(true);
   };
 
   return (
@@ -207,7 +222,7 @@ export default function SerigrafiaDecorado() {
                             <Button
                               variant="outlined"
                               size="small"
-                              onClick={() => setOpenModal(true)}
+                              onClick={() => handleViewClick(r.id)}
                             >
                               Detalles
                             </Button>
@@ -253,6 +268,11 @@ export default function SerigrafiaDecorado() {
       <SerigrafiaDecoradoModal
         open={openModal}
         onClose={() => setOpenModal(false)}
+        fetchById={getIdObj}
+        updatedById={UpdateIdObj}
+        id={selectedId}
+        isEditing={isEdit}
+        onSave={reload}
       />
     </>
   );
